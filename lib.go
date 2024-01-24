@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/abiriadev/iris"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/samber/lo"
 	"golang.org/x/term"
 )
@@ -26,7 +28,16 @@ func isSlime(seed int64, x, z int32) bool {
 	}
 }
 
-var slimeBlock string = fmt.Sprintf("%s██%s", iris.RgbFg(123, 195, 92), iris.Reset)
+// var slimeBlock string = fmt.Sprintf("%s██%s", iris.RgbFg(123, 195, 92), iris.Reset)
+var slimeBlock string = fmt.Sprintf(
+	"%s████%s\n%s████%s",
+	iris.RgbFg(123, 195, 92),
+	iris.Reset,
+	iris.RgbFg(123, 195, 92),
+	iris.Reset,
+)
+
+var emptyBlock string = "    \n    "
 
 func main() {
 	seed := int64(1)
@@ -37,16 +48,24 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	ax, az := tx/2, tz/1
-
+	ax, az := tx/4/3, tz/2/3
 	hx, hz := ax/2, az/2
 
+	t := table.NewWriter()
+
 	for z := 0; z < az; z++ {
+		row := make([]any, ax)
+
 		for x := 0; x < ax; x++ {
-			fmt.Print(
-				lo.If(isSlime(seed, int32(cx+x-hx), int32(cz+z-hz)), slimeBlock).Else("  "),
-			)
+			row[x] = lo.If(isSlime(seed, int32(cx+x-hx), int32(cz+z-hz)), slimeBlock).
+				Else(emptyBlock)
 		}
-		fmt.Println()
+
+		t.AppendRow(table.Row(row))
+		t.AppendSeparator()
 	}
+
+	t.SetOutputMirror(os.Stdout)
+	t.SetStyle(table.StyleLight)
+	t.Render()
 }
