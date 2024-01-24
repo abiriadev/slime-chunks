@@ -2,45 +2,22 @@ package main
 
 import "fmt"
 
-type Random struct {
-	seed int64
-}
-
-var mask int64 = 1<<48 - 1
-
-func newRandom(seed int64) Random {
-	return Random{
-		seed: seed ^ 0x5DEECE66D&mask,
-	}
-}
-
-func (r *Random) next(bits int32) int32 {
-	r.seed = (r.seed*0x5DEECE66D + 0xB) & mask
-
-	return int32(r.seed >> (48 - bits))
-}
-
-func (r *Random) nextInt(bound int32) int32 {
-	var bits, val int32
-
-	for ok := true; ok; ok = bits-val+(bound-1) < 0 {
-		bits = r.next(31)
-		val = bits % bound
-	}
-
-	return val
-}
+const mask int64 = 1<<48 - 1
 
 func isSlime(seed int64, x, z int32) bool {
-	rnd := newRandom(
-		seed +
-			int64(int32(x*x*0x4c1906)) +
-			int64(int32(x*0x5ac0db)) +
-			int64(int32(z*z))*int64(0x4307a7) +
-			int64(int32(z*0x5f24f)) ^ int64(0x3ad8025f),
-	)
+	x2, z2 := int64(x), int64(z)
 
-	return rnd.nextInt(10) == 0
+	seed = seed + x2*x2*0x4C1906 + x2*0x5AC0DB +
+		z2*z2*0x4307A7 + z2*0x5F24F ^ 0x3AD8025F ^ 0x5DEECE66D&mask
+
+	for {
+		seed = (seed*0x5DEECE66D + 0xB) & mask
+		bits := int32(seed >> 17)
+		v := bits % 10
+		if v-bits <= 9 {
+			return v == 0
+		}
+	}
 }
 
 func main() {
