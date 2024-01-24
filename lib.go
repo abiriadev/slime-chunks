@@ -31,13 +31,33 @@ func (r *Random) nextInt(bound int32) int32 {
 	return val
 }
 
-func main() {
-	r := newRandom(1)
+func isSlime(seed int64, x, z int32) bool {
+	rnd := newRandom(
+		seed +
+			int64(int32(x*x*0x4c1906)) +
+			int64(int32(x*0x5ac0db)) +
+			int64(int32(z*z))*int64(0x4307a7) +
+			int64(int32(z*0x5f24f)) ^ int64(0x3ad8025f),
+	)
 
-	// fmt.Println(r.next(32))
-	fmt.Println(r.nextInt(10))
-	fmt.Println(r.nextInt(10))
-	fmt.Println(r.nextInt(10))
-	fmt.Println(r.nextInt(10))
-	fmt.Println(r.nextInt(10))
+	return rnd.nextInt(10) == 0
+}
+
+func main() {
+	seed := int64(1)
+
+	r := 8
+
+	for x := -r; x < r; x++ {
+		for y := -r; y < r; y++ {
+			q := isSlime(seed, int32(y), int32(x))
+
+			if q {
+				fmt.Print("██")
+			} else {
+				fmt.Print("  ")
+			}
+		}
+		fmt.Println()
+	}
 }
