@@ -4,6 +4,7 @@ go 1.21.6
 
 require (
 	github.com/abiriadev/iris v0.0.0-20231201061230-0ac6d2ba75dd
+	github.com/alecthomas/kong v0.8.1
 	github.com/jedib0t/go-pretty/v6 v6.5.3
 	github.com/samber/lo v1.39.0
 	golang.org/x/term v0.16.0

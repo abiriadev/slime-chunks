@@ -5,12 +5,23 @@ import (
 	"os"
 
 	"github.com/abiriadev/iris"
+	"github.com/alecthomas/kong"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/samber/lo"
 	"golang.org/x/term"
 )
 
 const mask int64 = 1<<48 - 1
+
+var slimeBlock string = fmt.Sprintf(
+	"%s████%s\n%s████%s",
+	iris.RgbFg(123, 195, 92),
+	iris.Reset,
+	iris.RgbFg(123, 195, 92),
+	iris.Reset,
+)
+
+var emptyBlock string = "    \n    "
 
 func isSlime(seed int64, x, z int32) bool {
 	x2, z2 := int64(x), int64(z)
@@ -28,20 +39,17 @@ func isSlime(seed int64, x, z int32) bool {
 	}
 }
 
-// var slimeBlock string = fmt.Sprintf("%s██%s", iris.RgbFg(123, 195, 92), iris.Reset)
-var slimeBlock string = fmt.Sprintf(
-	"%s████%s\n%s████%s",
-	iris.RgbFg(123, 195, 92),
-	iris.Reset,
-	iris.RgbFg(123, 195, 92),
-	iris.Reset,
-)
-
-var emptyBlock string = "    \n    "
+var Cli struct {
+	Seed int64 `help:"seed of the world" required:"" short:"s"`
+	X    int32 `help:"x coordinate"`
+	Z    int32 `help:"z coordinate"`
+}
 
 func main() {
-	seed := int64(1)
-	px, pz := 0, 0
+	_ = kong.Parse(&Cli)
+
+	seed := int64(Cli.Seed)
+	px, pz := Cli.X, Cli.Z
 	cx, cz := px/16, pz/16
 
 	tx, tz, err := term.GetSize(0)
@@ -57,7 +65,7 @@ func main() {
 		row := make([]any, ax)
 
 		for x := 0; x < ax; x++ {
-			row[x] = lo.If(isSlime(seed, int32(cx+x-hx), int32(cz+z-hz)), slimeBlock).
+			row[x] = lo.If(isSlime(seed, int32(int(cx)+x-hx), int32(int(cz)+z-hz)), slimeBlock).
 				Else(emptyBlock)
 		}
 
