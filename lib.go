@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/abiriadev/iris"
 	"github.com/samber/lo"
 	"golang.org/x/term"
 )
@@ -25,6 +26,8 @@ func isSlime(seed int64, x, z int32) bool {
 	}
 }
 
+var slimeBlock string = fmt.Sprintf("%s██%s", iris.RgbFg(123, 195, 92), iris.Reset)
+
 func main() {
 	seed := int64(1)
 	px, pz := 0, 0
@@ -41,7 +44,7 @@ func main() {
 	for z := 0; z < az; z++ {
 		for x := 0; x < ax; x++ {
 			fmt.Print(
-				lo.If(isSlime(seed, int32(cx+x-hx), int32(cz+z-hz)), "██").Else("  "),
+				lo.If(isSlime(seed, int32(cx+x-hx), int32(cz+z-hz)), slimeBlock).Else("  "),
 			)
 		}
 		fmt.Println()
