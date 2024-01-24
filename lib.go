@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/samber/lo"
+	"golang.org/x/term"
+)
 
 const mask int64 = 1<<48 - 1
 
@@ -22,18 +27,22 @@ func isSlime(seed int64, x, z int32) bool {
 
 func main() {
 	seed := int64(1)
+	px, pz := 0, 0
+	cx, cz := px/16, pz/16
 
-	r := 8
+	tx, tz, err := term.GetSize(0)
+	if err != nil {
+		panic(err)
+	}
+	ax, az := tx/2, tz/1
 
-	for x := -r; x < r; x++ {
-		for y := -r; y < r; y++ {
-			q := isSlime(seed, int32(y), int32(x))
+	hx, hz := ax/2, az/2
 
-			if q {
-				fmt.Print("██")
-			} else {
-				fmt.Print("  ")
-			}
+	for z := 0; z < az; z++ {
+		for x := 0; x < ax; x++ {
+			fmt.Print(
+				lo.If(isSlime(seed, int32(cx+x-hx), int32(cz+z-hz)), "██").Else("  "),
+			)
 		}
 		fmt.Println()
 	}
